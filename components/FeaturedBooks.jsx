@@ -11,25 +11,26 @@ export default function FeaturedBooks() {
   return (
     <section className="py-16 px-4 bg-white dark:bg-black">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-12 text-center">
+        <h2 className="text-4xl font-bold text-amber-950 dark:text-white mb-12 text-center">
           Featured Books
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {books.map((book) => (
-            <div key={book.id} className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-64 bg-zinc-200 dark:bg-zinc-800">
+          {books.map((book, index) => (
+            <div key={book.id} className="border border-amber-200 dark:border-zinc-800 rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-amber-50 dark:bg-zinc-900">
+              <div className="relative h-64 bg-amber-100 dark:bg-zinc-800">
                 <Image
                   src={book.image}
                   alt={book.title}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  priority={index === 0 || index === 1}
                 />
               </div>
               <div className="p-6">
-                <h3 className="font-semibold text-lg text-zinc-900 dark:text-white mb-2">{book.title}</h3>
-                <p className="text-zinc-600 dark:text-zinc-400 mb-2">{book.author}</p>
-                <p className="text-zinc-900 dark:text-white font-bold">{book.price}</p>
+                <h3 className="font-semibold text-lg text-amber-950 dark:text-white mb-2">{book.title}</h3>
+                <p className="text-amber-800 dark:text-zinc-400 mb-2">{book.author}</p>
+                <p className="text-amber-900 dark:text-white font-bold">{book.price}</p>
               </div>
             </div>
           ))}

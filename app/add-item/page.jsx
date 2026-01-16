@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import toast from "react-hot-toast";
 
 export default function AddItemPage() {
   const { data: session, status } = useSession();
@@ -63,6 +64,7 @@ export default function AddItemPage() {
 
       const data = await response.json();
       setSuccess(true);
+      toast.success('Book added successfully!');
       setFormData({
         name: "",
         description: "",
@@ -73,25 +75,26 @@ export default function AddItemPage() {
       });
 
       setTimeout(() => {
-        router.push('/items');
+        router.push('/books');
       }, 2000);
     } catch (err) {
       setError(err.message);
+      toast.error('Failed to add book. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-amber-50 dark:bg-black">
       <Navbar />
-      <main className="flex-1 py-16 px-4 bg-zinc-50 dark:bg-zinc-900">
+      <main className="flex-1 py-16 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-8 border border-amber-200 dark:border-zinc-700">
+            <h1 className="text-3xl font-bold text-amber-950 dark:text-white mb-2">
               Add New Book
             </h1>
-            <p className="text-zinc-600 dark:text-zinc-400 mb-8">
+            <p className="text-amber-800 dark:text-zinc-400 mb-8">
               Fill in the details to add a new book to the collection
             </p>
 
@@ -109,7 +112,7 @@ export default function AddItemPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                   Book Name *
                 </label>
                 <input
@@ -118,13 +121,13 @@ export default function AddItemPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                   placeholder="Enter book name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                   Author *
                 </label>
                 <input
@@ -133,13 +136,13 @@ export default function AddItemPage() {
                   value={formData.author}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                   placeholder="Enter author name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                   Description *
                 </label>
                 <textarea
@@ -148,14 +151,14 @@ export default function AddItemPage() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                   placeholder="Enter book description"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                     Price *
                   </label>
                   <input
@@ -166,13 +169,13 @@ export default function AddItemPage() {
                     required
                     step="0.01"
                     min="0"
-                    className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                    className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                     placeholder="0.00"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                  <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                     Genre *
                   </label>
                   <select
@@ -180,7 +183,7 @@ export default function AddItemPage() {
                     value={formData.genre}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                    className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                   >
                     <option value="">Select genre</option>
                     <option value="Fiction">Fiction</option>
@@ -196,7 +199,7 @@ export default function AddItemPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-amber-900 dark:text-zinc-300 mb-2">
                   Image URL (optional)
                 </label>
                 <input
@@ -204,7 +207,7 @@ export default function AddItemPage() {
                   name="image"
                   value={formData.image}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-zinc-500 dark:focus:ring-zinc-400"
+                  className="w-full px-4 py-2 border border-amber-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-amber-900 dark:text-white focus:ring-2 focus:ring-amber-500 dark:focus:ring-zinc-400"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -213,14 +216,14 @@ export default function AddItemPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 py-3 rounded-lg font-semibold hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-amber-700 dark:bg-white text-white dark:text-zinc-900 py-3 rounded-lg font-semibold hover:bg-amber-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Adding...' : 'Add Book'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push('/items')}
-                  className="px-6 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white py-3 rounded-lg font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                  onClick={() => router.push('/books')}
+                  className="px-6 border border-amber-300 dark:border-zinc-600 text-amber-900 dark:text-white py-3 rounded-lg font-semibold hover:bg-amber-100 dark:hover:bg-zinc-700 transition-colors"
                 >
                   Cancel
                 </button>

@@ -1,8 +1,93 @@
 @import "tailwindcss";
 
+@theme {
+  --color-amber-50: #faf8f5;
+  --color-amber-100: #f5ebe0;
+  --color-amber-200: #e8d5c4;
+  --color-amber-300: #d4b5a0;
+  --color-amber-400: #c09578;
+  --color-amber-500: #a67c52;
+  --color-amber-600: #8b5a3c;
+  --color-amber-700: #6f4530;
+  --color-amber-800: #5c4d4d;
+  --color-amber-900: #2d2424;
+  --color-amber-950: #1a1414;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
+  }
+  
+  /* Light theme - Warm bookshop colors */
+  :root {
+    --bg-primary: 250 248 245;
+    --bg-secondary: 255 255 255;
+    --bg-accent: 245 235 224;
+    --text-primary: 45 36 36;
+    --text-secondary: 92 77 77;
+    --text-muted: 139 125 125;
+    --border: 232 223 214;
+    --accent: 139 90 60;
+    --accent-hover: 109 69 48;
+  }
+  
+  /* Dark theme */
+  .dark {
+    --bg-primary: 10 10 10;
+    --bg-secondary: 24 24 27;
+    --bg-accent: 39 39 42;
+    --text-primary: 250 250 250;
+    --text-secondary: 212 212 216;
+    --text-muted: 161 161 170;
+    --border: 39 39 42;
+    --accent: 212 175 55;
+    --accent-hover: 234 179 8;
+  }
+  
+  body {
+    background-color: rgb(var(--bg-primary));
+    color: rgb(var(--text-primary));
+  }
+}
+
+@layer utilities {
+  .bg-bookshop {
+    background-color: rgb(var(--bg-primary));
+  }
+  
+  .bg-bookshop-secondary {
+    background-color: rgb(var(--bg-secondary));
+  }
+  
+  .bg-bookshop-accent {
+    background-color: rgb(var(--bg-accent));
+  }
+  
+  .text-bookshop {
+    color: rgb(var(--text-primary));
+  }
+  
+  .text-bookshop-secondary {
+    color: rgb(var(--text-secondary));
+  }
+  
+  .text-bookshop-muted {
+    color: rgb(var(--text-muted));
+  }
+  
+  .border-bookshop {
+    border-color: rgb(var(--border));
+  }
+  
+  .bg-accent-bookshop {
+    background-color: rgb(var(--accent));
+  }
+  
+  .bg-accent-bookshop:hover {
+    background-color: rgb(var(--accent-hover));
   }
 }

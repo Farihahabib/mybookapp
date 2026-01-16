@@ -1,44 +1,92 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
-export default async function BookDetailsPage({ params }) {
-  const session = await getServerSession();
+export default function BookDetailsPage({ params }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
-  if (!session) {
-    redirect("/login");
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
+    }
+
+    if (status === "authenticated") {
+      fetchBook();
+    }
+  }, [status]);
+
+  const fetchBook = async () => {
+    try {
+      const id = (await params).id;
+      const res = await fetch(`http://localhost:5000/api/books/${id}`);
+      if (!res.ok) {
+        throw new Error('Book not found');
+      }
+      const data = await res.json();
+      setBook(data);
+    } catch (error) {
+      console.error('Error fetching book:', error);
+      router.push("/books");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this book?')) {
+      return;
+    }
+
+    try {
+      const id = (await params).id;
+      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete book');
+      }
+
+      toast.success('Book deleted successfully!');
+      router.push('/books');
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      toast.error('Failed to delete book');
+    }
+  };
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-zinc-600 dark:text-zinc-400">Loading...</p>
+      </div>
+    );
   }
 
-  const { id } = await params;
-
-  const books = [
-    { id: 1, title: "The Midnight Library", author: "Matt Haig", price: "$14.99", genre: "Fiction", description: "A dazzling novel about all the choices that go into a life well lived. Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived.", image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop" },
-    { id: 2, title: "Atomic Habits", author: "James Clear", price: "$16.99", genre: "Self-Help", description: "An easy and proven way to build good habits and break bad ones. No matter your goals, Atomic Habits offers a proven framework for improving every day.", image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop" },
-    { id: 3, title: "Project Hail Mary", author: "Andy Weir", price: "$15.99", genre: "Science Fiction", description: "A lone astronaut must save the earth from disaster in this incredible new science-based thriller from the author of The Martian.", image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop" },
-    { id: 4, title: "The Silent Patient", author: "Alex Michaelides", price: "$13.99", genre: "Mystery", description: "A woman's act of violence against her husband and the therapist obsessed with uncovering her motive. The Silent Patient is a shocking psychological thriller of a woman's act of violence against her husband.", image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=600&fit=crop" },
-    { id: 5, title: "Educated", author: "Tara Westover", price: "$17.99", genre: "Biography", description: "A memoir about a young woman who leaves her survivalist family and goes on to earn a PhD from Cambridge University. An unforgettable memoir about a young girl who, kept out of school, leaves her survivalist family.", image: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=600&fit=crop" },
-    { id: 6, title: "Where the Crawdads Sing", author: "Delia Owens", price: "$15.99", genre: "Fiction", description: "A coming-of-age story of a young girl raised by the marshlands of the South. For years, rumors of the 'Marsh Girl' have haunted Barkley Cove, a quiet town on the North Carolina coast.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop" },
-    { id: 7, title: "Sapiens", author: "Yuval Noah Harari", price: "$18.99", genre: "History", description: "A brief history of humankind from the Stone Age to the modern age. How did our species succeed in the battle for dominance? Why did our foraging ancestors come together to create cities and kingdoms?", image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=600&fit=crop" },
-    { id: 8, title: "The Seven Husbands of Evelyn Hugo", author: "Taylor Jenkins Reid", price: "$14.99", genre: "Romance", description: "A reclusive Hollywood icon opens up about her glamorous and scandalous life. Aging and reclusive Hollywood movie icon Evelyn Hugo is finally ready to tell the truth about her glamorous and scandalous life.", image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop" },
-  ];
-
-  const book = books.find(b => b.id === parseInt(id));
-
   if (!book) {
-    redirect("/books");
+    return null;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-amber-50 dark:bg-black">
       <Navbar />
-      <main className="flex-1 py-16 px-4 bg-zinc-50 dark:bg-zinc-900">
+      <main className="flex-1 py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <Link 
             href="/books" 
-            className="inline-flex items-center text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white mb-8 transition-colors"
+            className="inline-flex items-center text-amber-800 dark:text-zinc-400 hover:text-amber-950 dark:hover:text-white mb-8 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -46,81 +94,99 @@ export default async function BookDetailsPage({ params }) {
             Back to Books
           </Link>
 
-          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg overflow-hidden border border-amber-200 dark:border-zinc-700">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-              <div className="relative h-96 md:h-full bg-zinc-200 dark:bg-zinc-700 rounded-lg overflow-hidden">
-                <Image
-                  src={book.image}
-                  alt={book.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
+              <div className="relative h-96 md:h-full bg-amber-100 dark:bg-zinc-700 rounded-lg overflow-hidden flex items-center justify-center">
+                {!imageError && book.image ? (
+                  <Image
+                    src={book.image}
+                    alt={book.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="text-center p-8">
+                    <svg className="w-24 h-24 mx-auto text-amber-400 dark:text-zinc-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <p className="text-amber-700 dark:text-zinc-400">No image available</p>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                <span className="text-sm text-amber-700 dark:text-zinc-400 uppercase tracking-wide mb-2">
                   {book.genre}
                 </span>
                 
-                <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-                  {book.title}
+                <h1 className="text-4xl font-bold text-amber-950 dark:text-white mb-4">
+                  {book.name}
                 </h1>
 
-                <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-6">
+                <p className="text-xl text-amber-800 dark:text-zinc-400 mb-6">
                   by {book.author}
                 </p>
 
                 <div className="mb-6">
-                  <p className="text-3xl font-bold text-zinc-900 dark:text-white">
-                    {book.price}
+                  <p className="text-3xl font-bold text-amber-900 dark:text-white">
+                    ${book.price}
                   </p>
                 </div>
 
                 <div className="mb-8">
-                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-3">
+                  <h2 className="text-lg font-semibold text-amber-950 dark:text-white mb-3">
                     Description
                   </h2>
-                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  <p className="text-amber-800 dark:text-zinc-400 leading-relaxed">
                     {book.description}
                   </p>
                 </div>
 
                 <div className="mb-8 space-y-3">
                   <div className="flex items-center">
-                    <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 w-24">
+                    <span className="text-sm font-semibold text-amber-900 dark:text-zinc-300 w-24">
                       Author:
                     </span>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <span className="text-sm text-amber-800 dark:text-zinc-400">
                       {book.author}
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 w-24">
+                    <span className="text-sm font-semibold text-amber-900 dark:text-zinc-300 w-24">
                       Genre:
                     </span>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <span className="text-sm text-amber-800 dark:text-zinc-400">
                       {book.genre}
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 w-24">
+                    <span className="text-sm font-semibold text-amber-900 dark:text-zinc-300 w-24">
                       Book ID:
                     </span>
-                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                    <span className="text-sm text-amber-800 dark:text-zinc-400">
                       #{book.id}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex gap-4 mt-auto">
-                  <button className="flex-1 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 py-3 rounded-lg font-semibold hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors">
+                  <button className="flex-1 bg-amber-700 dark:bg-white text-white dark:text-zinc-900 py-3 rounded-lg font-semibold hover:bg-amber-800 dark:hover:bg-zinc-200 transition-colors">
                     Add to Cart
                   </button>
-                  <button className="px-6 border border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white py-3 rounded-lg font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                  <button className="px-6 border border-amber-300 dark:border-zinc-600 text-amber-900 dark:text-white py-3 rounded-lg font-semibold hover:bg-amber-100 dark:hover:bg-zinc-700 transition-colors">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={handleDelete}
+                    className="px-6 border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 py-3 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                   </button>
                 </div>

@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -23,7 +24,9 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError("Invalid email or password");
+      toast.error("Invalid email or password");
     } else {
+      toast.success("Login successful!");
       router.push("/books");
     }
   };
@@ -33,9 +36,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 px-4">
-      <div className="max-w-md w-full bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-amber-50 dark:bg-zinc-900 px-4">
+      <div className="max-w-md w-full bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-8 border border-amber-200 dark:border-zinc-700">
+        <h1 className="text-3xl font-bold text-amber-950 dark:text-white mb-6 text-center">
           Login to BookShop
         </h1>
         
@@ -48,6 +51,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white"
               required
             />
@@ -61,6 +65,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               className="w-full px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white"
               required
             />

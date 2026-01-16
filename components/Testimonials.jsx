@@ -6,16 +6,16 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-16 px-4 bg-zinc-50 dark:bg-zinc-900">
+    <section className="py-16 px-4 bg-amber-50 dark:bg-zinc-900">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-12 text-center">
+        <h2 className="text-4xl font-bold text-amber-950 dark:text-white mb-12 text-center">
           What Our Readers Say
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-white dark:bg-zinc-800 p-6 rounded-lg">
-              <p className="text-zinc-600 dark:text-zinc-400 mb-4">"{testimonial.text}"</p>
-              <p className="font-semibold text-zinc-900 dark:text-white">- {testimonial.name}</p>
+            <div key={testimonial.id} className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-md border border-amber-200 dark:border-zinc-700">
+              <p className="text-amber-800 dark:text-zinc-400 mb-4 italic">"{testimonial.text}"</p>
+              <p className="font-semibold text-amber-950 dark:text-white">- {testimonial.name}</p>
             </div>
           ))}
         </div>
