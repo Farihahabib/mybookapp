@@ -1,20 +1,6 @@
-const express = require('express');
-const cors = require('cors');
+import { NextResponse } from 'next/server';
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://mybookapp-woad.vercel.app',
-    /\.vercel\.app$/  // Allow all Vercel preview deployments
-  ],
-  credentials: true
-}));
-app.use(express.json());
-
-// Mock book data
+// Mock book data (same as in route.js - in production, use a database)
 let books = [
   {
     id: 1,
@@ -90,54 +76,33 @@ let books = [
   }
 ];
 
-// API endpoint to get all books
-app.get('/api/books', (req, res) => {
-  res.json(books);
-});
-
-// API endpoint to get a single book by ID
-app.get('/api/books/:id', (req, res) => {
-  const book = books.find(b => b.id === parseInt(req.params.id));
-  if (book) {
-    res.json(book);
-  } else {
-    res.status(404).json({ message: 'Book not found' });
-  }
-});
-
-// API endpoint to add a new book
-app.post('/api/books', (req, res) => {
-  const { name, description, price, author, genre, image } = req.body;
+// GET single book by ID
+export async function GET(request, { params }) {
+  const id = parseInt((await params).id);
+  const book = books.find(b => b.id === id);
   
-  if (!name || !description || !price || !author || !genre) {
-    return res.status(400).json({ message: 'All fields are required' });
+  if (book) {
+    return NextResponse.json(book);
+  } else {
+    return NextResponse.json(
+      { message: 'Book not found' },
+      { status: 404 }
+    );
   }
+}
 
-  const newBook = {
-    id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
-    name,
-    description,
-    price: parseFloat(price),
-    author,
-    genre,
-    image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
-  };
-
-  books.push(newBook);
-  res.status(201).json(newBook);
-});
-
-// API endpoint to delete a book
-app.delete('/api/books/:id', (req, res) => {
-  const index = books.findIndex(b => b.id === parseInt(req.params.id));
+// DELETE book by ID
+export async function DELETE(request, { params }) {
+  const id = parseInt((await params).id);
+  const index = books.findIndex(b => b.id === id);
+  
   if (index !== -1) {
     books.splice(index, 1);
-    res.json({ message: 'Book deleted successfully' });
+    return NextResponse.json({ message: 'Book deleted successfully' });
   } else {
-    res.status(404).json({ message: 'Book not found' });
+    return NextResponse.json(
+      { message: 'Book not found' },
+      { status: 404 }
+    );
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Express server running on http://localhost:${PORT}`);
-});
+}

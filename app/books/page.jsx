@@ -21,7 +21,7 @@ export default function BooksPage() {
   }, [status]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/books')
+    fetch('/api/books')
       .then(res => res.json())
       .then(data => {
         setBooks(data);

@@ -1,20 +1,6 @@
-const express = require('express');
-const cors = require('cors');
+import { NextResponse } from 'next/server';
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://mybookapp-woad.vercel.app',
-    /\.vercel\.app$/  // Allow all Vercel preview deployments
-  ],
-  credentials: true
-}));
-app.use(express.json());
-
-// Mock book data
+// Mock book data (in production, use a database)
 let books = [
   {
     id: 1,
@@ -90,54 +76,39 @@ let books = [
   }
 ];
 
-// API endpoint to get all books
-app.get('/api/books', (req, res) => {
-  res.json(books);
-});
+// GET all books
+export async function GET() {
+  return NextResponse.json(books);
+}
 
-// API endpoint to get a single book by ID
-app.get('/api/books/:id', (req, res) => {
-  const book = books.find(b => b.id === parseInt(req.params.id));
-  if (book) {
-    res.json(book);
-  } else {
-    res.status(404).json({ message: 'Book not found' });
+// POST new book
+export async function POST(request) {
+  try {
+    const { name, description, price, author, genre, image } = await request.json();
+    
+    if (!name || !description || !price || !author || !genre) {
+      return NextResponse.json(
+        { message: 'All fields are required' },
+        { status: 400 }
+      );
+    }
+
+    const newBook = {
+      id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
+      name,
+      description,
+      price: parseFloat(price),
+      author,
+      genre,
+      image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+    };
+
+    books.push(newBook);
+    return NextResponse.json(newBook, { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: 'Invalid request body' },
+      { status: 400 }
+    );
   }
-});
-
-// API endpoint to add a new book
-app.post('/api/books', (req, res) => {
-  const { name, description, price, author, genre, image } = req.body;
-  
-  if (!name || !description || !price || !author || !genre) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
-  const newBook = {
-    id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
-    name,
-    description,
-    price: parseFloat(price),
-    author,
-    genre,
-    image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
-  };
-
-  books.push(newBook);
-  res.status(201).json(newBook);
-});
-
-// API endpoint to delete a book
-app.delete('/api/books/:id', (req, res) => {
-  const index = books.findIndex(b => b.id === parseInt(req.params.id));
-  if (index !== -1) {
-    books.splice(index, 1);
-    res.json({ message: 'Book deleted successfully' });
-  } else {
-    res.status(404).json({ message: 'Book not found' });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Express server running on http://localhost:${PORT}`);
-});
+}

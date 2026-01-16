@@ -30,7 +30,7 @@ export default function BookDetailsPage({ params }) {
   const fetchBook = async () => {
     try {
       const id = (await params).id;
-      const res = await fetch(`http://localhost:5000/api/books/${id}`);
+      const res = await fetch(`/api/books/${id}`);
       if (!res.ok) {
         throw new Error('Book not found');
       }
@@ -51,7 +51,7 @@ export default function BookDetailsPage({ params }) {
 
     try {
       const id = (await params).id;
-      const res = await fetch(`http://localhost:5000/api/books/${id}`, {
+      const res = await fetch(`/api/books/${id}`, {
         method: 'DELETE',
       });
 
