@@ -22,6 +22,12 @@ export default function BooksPage() {
   }, [status]);
 
   useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = () => {
+    setLoading(true);
+    setError(null);
     fetch('/api/books')
       .then(res => {
         if (!res.ok) {
@@ -40,7 +46,7 @@ export default function BooksPage() {
         setBooks([]);
         setLoading(false);
       });
-  }, []);
+  };
 
   const handleImageError = (bookId) => {
     setImageErrors(prev => ({ ...prev, [bookId]: true }));
@@ -75,7 +81,10 @@ export default function BooksPage() {
           {error ? (
             <div className="text-center py-12">
               <p className="text-red-600 dark:text-red-400 text-lg mb-2">
-                Error loading books: {error}
+                API Error: {error}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                If you see localhost:5000 errors, the deployment needs to update.
               </p>
               <button 
                 onClick={() => window.location.reload()} 

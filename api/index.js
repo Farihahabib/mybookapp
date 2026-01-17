@@ -1,7 +1,20 @@
-import { NextResponse } from 'next/server';
+const express = require('express');
+const cors = require('cors');
 
-// Same initial data as in route.js
-const getInitialBooks = () => [
+const app = express();
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://mybookapp-woad.vercel.app',
+    /\.vercel\.app$/  // Allow all Vercel preview deployments
+  ],
+  credentials: true
+}));
+app.use(express.json());
+
+// Mock book data
+let books = [
   {
     id: 1,
     name: "The Midnight Library",
@@ -76,45 +89,53 @@ const getInitialBooks = () => [
   }
 ];
 
-// GET single book by ID
-export async function GET(request, { params }) {
-  try {
-    const id = parseInt((await params).id);
-    const books = getInitialBooks();
-    const book = books.find(b => b.id === id);
-    
-    if (book) {
-      return NextResponse.json(book);
-    } else {
-      return NextResponse.json(
-        { message: 'Book not found' },
-        { status: 404 }
-      );
-    }
-  } catch (error) {
-    console.error('Error in GET /api/books/[id]:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch book' },
-      { status: 500 }
-    );
-  }
-}
+// API endpoint to get all books
+app.get('/api/books', (req, res) => {
+  res.json(books);
+});
 
-// DELETE book by ID
-export async function DELETE(request, { params }) {
-  try {
-    const id = parseInt((await params).id);
-    
-    // Note: In serverless, this won't actually persist the deletion
-    // You'd need a database for real persistence
-    return NextResponse.json({ 
-      message: 'Book deleted successfully (Note: Changes won\'t persist in serverless without a database)' 
-    });
-  } catch (error) {
-    console.error('Error in DELETE /api/books/[id]:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete book' },
-      { status: 500 }
-    );
+// API endpoint to get a single book by ID
+app.get('/api/books/:id', (req, res) => {
+  const book = books.find(b => b.id === parseInt(req.params.id));
+  if (book) {
+    res.json(book);
+  } else {
+    res.status(404).json({ message: 'Book not found' });
   }
-}
+});
+
+// API endpoint to add a new book
+app.post('/api/books', (req, res) => {
+  const { name, description, price, author, genre, image } = req.body;
+  
+  if (!name || !description || !price || !author || !genre) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const newBook = {
+    id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
+    name,
+    description,
+    price: parseFloat(price),
+    author,
+    genre,
+    image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+  };
+
+  books.push(newBook);
+  res.status(201).json(newBook);
+});
+
+// API endpoint to delete a book
+app.delete('/api/books/:id', (req, res) => {
+  const index = books.findIndex(b => b.id === parseInt(req.params.id));
+  if (index !== -1) {
+    books.splice(index, 1);
+    res.json({ message: 'Book deleted successfully' });
+  } else {
+    res.status(404).json({ message: 'Book not found' });
+  }
+});
+
+// Export the Express API
+module.exports = app;
