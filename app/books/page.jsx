@@ -47,15 +47,6 @@ export default function BooksPage() {
         setLoading(false);
       });
   };
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching books:', error);
-        setError(error.message);
-        setBooks([]);
-        setLoading(false);
-      });
-  };
 
   const handleImageError = (bookId) => {
     setImageErrors(prev => ({ ...prev, [bookId]: true }));

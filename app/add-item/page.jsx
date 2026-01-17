@@ -49,17 +49,6 @@ export default function AddItemPage() {
     return;
   };
 
-      setTimeout(() => {
-        router.push('/books');
-      }, 2000);
-    } catch (err) {
-      setError(err.message);
-      toast.error('Failed to add book. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-amber-50 dark:bg-black">
       <Navbar />
