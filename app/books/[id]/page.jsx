@@ -30,12 +30,18 @@ export default function BookDetailsPage({ params }) {
   const fetchBook = async () => {
     try {
       const id = (await params).id;
-      const res = await fetch(`/api/books?id=${id}`);
+      const res = await fetch('/data/books.json');
       if (!res.ok) {
+        throw new Error('Failed to fetch books');
+      }
+      const books = await res.json();
+      const book = books.find(b => b.id === parseInt(id));
+      
+      if (!book) {
         throw new Error('Book not found');
       }
-      const data = await res.json();
-      setBook(data);
+      
+      setBook(book);
     } catch (error) {
       console.error('Error fetching book:', error);
       router.push("/books");
@@ -45,26 +51,8 @@ export default function BookDetailsPage({ params }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this book?')) {
-      return;
-    }
-
-    try {
-      const id = (await params).id;
-      const res = await fetch(`/api/books?id=${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to delete book');
-      }
-
-      toast.success('Book deleted successfully!');
-      router.push('/books');
-    } catch (error) {
-      console.error('Error deleting book:', error);
-      toast.error('Failed to delete book');
-    }
+    alert('Delete functionality is disabled in this demo version. Books are loaded from a static JSON file.');
+    return;
   };
 
   if (status === "loading" || loading) {

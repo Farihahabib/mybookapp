@@ -45,34 +45,9 @@ export default function AddItemPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess(false);
-
-    try {
-      const response = await fetch('/api/books', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add book');
-      }
-
-      const data = await response.json();
-      setSuccess(true);
-      toast.success('Book added successfully!');
-      setFormData({
-        name: "",
-        description: "",
-        price: "",
-        author: "",
-        genre: "",
-        image: ""
-      });
+    alert('Add book functionality is disabled in this demo version. Books are loaded from a static JSON file.');
+    return;
+  };
 
       setTimeout(() => {
         router.push('/books');

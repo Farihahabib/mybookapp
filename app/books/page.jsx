@@ -28,7 +28,7 @@ export default function BooksPage() {
   const fetchBooks = () => {
     setLoading(true);
     setError(null);
-    fetch('/api/books')
+    fetch('/data/books.json')
       .then(res => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -38,6 +38,15 @@ export default function BooksPage() {
       .then(data => {
         console.log('Books fetched:', data);
         setBooks(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching books:', error);
+        setError(error.message);
+        setBooks([]);
+        setLoading(false);
+      });
+  };
         setLoading(false);
       })
       .catch(error => {
