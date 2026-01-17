@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
-// Mock book data (in production, use a database)
-let books = [
+// In production, you'd use a database. For now, we'll use a simple JSON file approach
+// or consider this as initial seed data that gets reset on each deployment
+const getInitialBooks = () => [
   {
     id: 1,
     name: "The Midnight Library",
@@ -78,7 +79,16 @@ let books = [
 
 // GET all books
 export async function GET() {
-  return NextResponse.json(books);
+  try {
+    const books = getInitialBooks();
+    return NextResponse.json(books);
+  } catch (error) {
+    console.error('Error in GET /api/books:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch books' },
+      { status: 500 }
+    );
+  }
 }
 
 // POST new book
@@ -93,6 +103,9 @@ export async function POST(request) {
       );
     }
 
+    // Note: In serverless, this won't persist between requests
+    // You'd need a database for real persistence
+    const books = getInitialBooks();
     const newBook = {
       id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
       name,
@@ -103,12 +116,12 @@ export async function POST(request) {
       image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
     };
 
-    books.push(newBook);
     return NextResponse.json(newBook, { status: 201 });
   } catch (error) {
+    console.error('Error in POST /api/books:', error);
     return NextResponse.json(
-      { message: 'Invalid request body' },
-      { status: 400 }
+      { error: 'Failed to create book' },
+      { status: 500 }
     );
   }
 }

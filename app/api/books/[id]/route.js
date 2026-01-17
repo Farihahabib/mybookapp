@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Mock book data (same as in route.js - in production, use a database)
-let books = [
+// Same initial data as in route.js
+const getInitialBooks = () => [
   {
     id: 1,
     name: "The Midnight Library",
@@ -78,31 +78,43 @@ let books = [
 
 // GET single book by ID
 export async function GET(request, { params }) {
-  const id = parseInt((await params).id);
-  const book = books.find(b => b.id === id);
-  
-  if (book) {
-    return NextResponse.json(book);
-  } else {
+  try {
+    const id = parseInt((await params).id);
+    const books = getInitialBooks();
+    const book = books.find(b => b.id === id);
+    
+    if (book) {
+      return NextResponse.json(book);
+    } else {
+      return NextResponse.json(
+        { message: 'Book not found' },
+        { status: 404 }
+      );
+    }
+  } catch (error) {
+    console.error('Error in GET /api/books/[id]:', error);
     return NextResponse.json(
-      { message: 'Book not found' },
-      { status: 404 }
+      { error: 'Failed to fetch book' },
+      { status: 500 }
     );
   }
 }
 
 // DELETE book by ID
 export async function DELETE(request, { params }) {
-  const id = parseInt((await params).id);
-  const index = books.findIndex(b => b.id === id);
-  
-  if (index !== -1) {
-    books.splice(index, 1);
-    return NextResponse.json({ message: 'Book deleted successfully' });
-  } else {
+  try {
+    const id = parseInt((await params).id);
+    
+    // Note: In serverless, this won't actually persist the deletion
+    // You'd need a database for real persistence
+    return NextResponse.json({ 
+      message: 'Book deleted successfully (Note: Changes won\'t persist in serverless without a database)' 
+    });
+  } catch (error) {
+    console.error('Error in DELETE /api/books/[id]:', error);
     return NextResponse.json(
-      { message: 'Book not found' },
-      { status: 404 }
+      { error: 'Failed to delete book' },
+      { status: 500 }
     );
   }
 }

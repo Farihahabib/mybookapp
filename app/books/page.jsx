@@ -12,6 +12,7 @@ export default function BooksPage() {
   const { data: session, status } = useSession();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
@@ -22,13 +23,20 @@ export default function BooksPage() {
 
   useEffect(() => {
     fetch('/api/books')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        console.log('Books fetched:', data);
         setBooks(data);
         setLoading(false);
       })
       .catch(error => {
         console.error('Error fetching books:', error);
+        setError(error.message);
         setBooks([]);
         setLoading(false);
       });
@@ -64,10 +72,22 @@ export default function BooksPage() {
             </p>
           </div>
 
-          {books.length === 0 ? (
+          {error ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 text-lg mb-2">
+                Error loading books: {error}
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="bg-amber-700 text-white px-4 py-2 rounded-lg hover:bg-amber-800"
+              >
+                Retry
+              </button>
+            </div>
+          ) : books.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-amber-800 dark:text-zinc-400 text-lg">
-                No books available. Make sure the Express server is running on port 5000.
+                No books available at the moment.
               </p>
             </div>
           ) : (
