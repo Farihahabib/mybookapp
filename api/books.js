@@ -1,18 +1,3 @@
-const express = require('express');
-const cors = require('cors');
-
-const app = express();
-
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://mybookapp-woad.vercel.app',
-    /\.vercel\.app$/  // Allow all Vercel preview deployments
-  ],
-  credentials: true
-}));
-app.use(express.json());
-
 // Mock book data
 let books = [
   {
@@ -89,53 +74,74 @@ let books = [
   }
 ];
 
-// API endpoint to get all books
-app.get('/api/books', (req, res) => {
-  res.json(books);
-});
+export default function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-// API endpoint to get a single book by ID
-app.get('/api/books/:id', (req, res) => {
-  const book = books.find(b => b.id === parseInt(req.params.id));
-  if (book) {
-    res.json(book);
-  } else {
-    res.status(404).json({ message: 'Book not found' });
-  }
-});
-
-// API endpoint to add a new book
-app.post('/api/books', (req, res) => {
-  const { name, description, price, author, genre, image } = req.body;
-  
-  if (!name || !description || !price || !author || !genre) {
-    return res.status(400).json({ message: 'All fields are required' });
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
 
-  const newBook = {
-    id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
-    name,
-    description,
-    price: parseFloat(price),
-    author,
-    genre,
-    image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
-  };
+  const { method, query } = req;
+  const { id } = query;
 
-  books.push(newBook);
-  res.status(201).json(newBook);
-});
+  switch (method) {
+    case 'GET':
+      if (id) {
+        // Get single book
+        const book = books.find(b => b.id === parseInt(id));
+        if (book) {
+          res.status(200).json(book);
+        } else {
+          res.status(404).json({ message: 'Book not found' });
+        }
+      } else {
+        // Get all books
+        res.status(200).json(books);
+      }
+      break;
 
-// API endpoint to delete a book
-app.delete('/api/books/:id', (req, res) => {
-  const index = books.findIndex(b => b.id === parseInt(req.params.id));
-  if (index !== -1) {
-    books.splice(index, 1);
-    res.json({ message: 'Book deleted successfully' });
-  } else {
-    res.status(404).json({ message: 'Book not found' });
+    case 'POST':
+      const { name, description, price, author, genre, image } = req.body;
+      
+      if (!name || !description || !price || !author || !genre) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+
+      const newBook = {
+        id: books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1,
+        name,
+        description,
+        price: parseFloat(price),
+        author,
+        genre,
+        image: image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop"
+      };
+
+      books.push(newBook);
+      res.status(201).json(newBook);
+      break;
+
+    case 'DELETE':
+      if (id) {
+        const index = books.findIndex(b => b.id === parseInt(id));
+        if (index !== -1) {
+          books.splice(index, 1);
+          res.status(200).json({ message: 'Book deleted successfully' });
+        } else {
+          res.status(404).json({ message: 'Book not found' });
+        }
+      } else {
+        res.status(400).json({ message: 'Book ID is required' });
+      }
+      break;
+
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+      res.status(405).end(`Method ${method} Not Allowed`);
   }
-});
-
-// Export the Express API
-module.exports = app;
+}
